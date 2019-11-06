@@ -13,6 +13,24 @@ class ArticlesController extends Controller
         $this->middleware('auth');
     }
 
+    public function index()
+    {
+        return Article::paginate(10);
+    }
+
+    public function show(Request $request)
+    {
+        $article = Article::find($request->article_id);
+        if (!$article) {
+            return response()->json([
+                'message' => 'Article not found'
+            ], 404);
+        }
+
+        return $article;
+    }
+
+
     public function store(Request $request)
     {
         if (!auth()->user()->hasPermission(Permissions::CREATE_POST)) {
@@ -34,16 +52,16 @@ class ArticlesController extends Controller
     {
         $article = Article::find($request->article_id);
 
-        if(! $article){
+        if (!$article) {
             return response()->json([
                 'message' => 'Article not found'
-            ],404);
+            ], 404);
         }
 
-        if(! auth()->user()->canEditArticle($article)){
+        if (!auth()->user()->canEditArticle($article)) {
             return response()->json([
                 'message' => 'UnAuthorized'
-            ],401);
+            ], 401);
         }
 
         $article->title = $request->title;
