@@ -8,15 +8,18 @@ axios.defaults.headers.common = {
 
 
 axios.get('/api/me').then(function (response) {
-    document.getElementById('links').style.display = 'initial';
+    document.getElementById('links').style.display = 'block';
+    document.getElementById('app').style.display = 'block';
     let user = response.data;
     if (!user.is_super_admin) {
         document.getElementById('users_link').style.display = 'none';
     }
+
 }).catch(function (error) {
-    if (error.response.status == 401) {
-        window.location.href = '/guest.html';
-    }
+    // if (error.response.status == 404) {
+        localStorage.removeItem('auth-id');
+        window.location.href = '/login.html';
+    // }
 });
 
 function logout() {

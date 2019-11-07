@@ -17,7 +17,6 @@ class UsersController extends Controller
     {
         $response = $this->isNotSuperAdmin();
         if ($response) return $response;
-
         return User::paginate(10);
     }
 
@@ -48,12 +47,11 @@ class UsersController extends Controller
 
     public function update(Request $request)
     {
-
         // is superadmin  -  user_id
-        // true           - true
-        // true           - false
+        // true           - true  (admin want to update user data)
+        // true           - false (admin update data of himself)
         // false          - true  --> Only non feasible case
-        // false          - false
+        // false          - false -->not case
         // user_id is sent in case of admin only, Otherwise no user_id is sent
         $notSuperAdminResponse = $this->isNotSuperAdmin();
         if ($notSuperAdminResponse && $request->user_id) return $notSuperAdminResponse;

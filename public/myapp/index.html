@@ -9,12 +9,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<button onclick="logout()">Logout</button>
-<ul id="links">
-    <li id="users_link"><a href="users.html">Users</a></li>
-    <li><a href="articles.html">Articles</a></li>
-    <li><a href="edit_info.html">Edit my info</a></li>
-</ul>
+<div id="app">
+    <button id="logout" onclick="logout()">Logout</button>
+    <ul id="links">
+        <li id="users_link"><a href="users.html">Users</a></li>
+        <li><a href="articles.html">Articles</a></li>
+        <li><a href="edit_info.html">Edit my info</a></li>
+    </ul>
+</div>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="app.js"></script>
 </body>
