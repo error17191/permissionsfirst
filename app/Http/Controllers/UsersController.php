@@ -70,8 +70,7 @@ class UsersController extends Controller
         $user->last_name = $request->last_name;
         $user->email = $request->email;
         $user->mobile = $request->mobile;
-        $user->password = bcrypt('123456');
-
+        $user->password = bcrypt($request->password);
         $user->save();
     }
 
@@ -115,6 +114,7 @@ class UsersController extends Controller
             'last_name'=>'required|string|max:255',
             'email'=>'required|unique:users,email|email',
             'mobile'=>'required|unique:users,mobile|integer|min:6',
+           'password'=>'required|string'
         ]);
     }
     private function validatePermissions($request)
