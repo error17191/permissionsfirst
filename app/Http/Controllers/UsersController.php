@@ -30,6 +30,7 @@ class UsersController extends Controller
         $response = $this->isNotSuperAdmin();
         if ($response) return $response;
         // @TODO: add validations
+        $this->dataValidate($request);
 
         $user = new User();
         $user->first_name = $request->first_name;
@@ -64,6 +65,7 @@ class UsersController extends Controller
                 'message' => 'user not found'
             ], 404);
         }
+        $this->dataValidate($request);
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->email = $request->email;
@@ -84,7 +86,7 @@ class UsersController extends Controller
                 'message' => 'user not found'
             ], 404);
         }
-
+        $this->validatePermissions($request);
         $user->permissions = json_encode($request->permissions);
         $user->save();
     }
@@ -104,5 +106,21 @@ class UsersController extends Controller
                 'message' => 'Unauthorized'
             ], 401);
         }
+    }
+
+    private function dataValidate($request)
+    {
+       $request->validate([
+            'first_name'=>'required|string|max:255',
+            'last_name'=>'required|string|max:255',
+            'email'=>'required|unique:users,email|email',
+            'mobile'=>'required|unique:users,mobile|integer|min:6',
+        ]);
+    }
+    private function validatePermissions($request)
+    {
+        $request->validate([
+            'permissions'=>'required|array'
+        ]);
     }
 }

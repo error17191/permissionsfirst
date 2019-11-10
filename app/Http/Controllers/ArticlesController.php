@@ -30,17 +30,17 @@ class ArticlesController extends Controller
         return $article;
     }
 
-
     public function store(Request $request)
     {
-        if (!auth()->user()->hasPermission(Permissions::CREATE_POST)) {
+        //@TODO check if auth is admin or legal user
+        $this->isAdminOrUserWithPermission($request);
+        if (!auth()->user()->hasPermission(Permissions::CREATE_POST) ) {
             return response()->json([
                 'message' => 'unAuthorized'
             ], 401);
         }
-
         // @TODO add validation here
-
+       $this->dataValidation($request);
         $article = new Article();
         $article->title = $request->title;
         $article->content = $request->get('content');
@@ -51,7 +51,6 @@ class ArticlesController extends Controller
     public function update(Request $request)
     {
         $article = Article::find($request->article_id);
-
         if (!$article) {
             return response()->json([
                 'message' => 'Article not found'
@@ -63,10 +62,32 @@ class ArticlesController extends Controller
                 'message' => 'UnAuthorized'
             ], 401);
         }
-
+        //@TODO check validation
+        $request->validate([
+            'title'=>'required|string',
+            'content'=>'required|string',
+        ]);
         $article->title = $request->title;
         $article->content = $request->get('content');
 
         $article->save();
+    }
+    private  function dataValidation($request)
+    {
+        $request->validate([
+            'title'=>'required|string',
+            'content'=>'required|string',
+            'user_id'=>'required|exists:users,id'
+        ]);
+    }
+
+    private function isAdminOrUserWithPermission($request)
+    {
+        if (!auth()->user()->is_super_admin) {
+            if(auth()->id() != $request->user_id)
+                return response()->json([
+                    'message'=>'not Admin or not auth user'
+                ]);
+        }
     }
 }
