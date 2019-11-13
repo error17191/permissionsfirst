@@ -26,7 +26,6 @@ class ArticlesController extends Controller
                 'message' => 'Article not found'
             ], 404);
         }
-
         return $article;
     }
 
@@ -69,7 +68,6 @@ class ArticlesController extends Controller
         ]);
         $article->title = $request->title;
         $article->content = $request->get('content');
-
         $article->save();
     }
     private  function dataValidation($request)

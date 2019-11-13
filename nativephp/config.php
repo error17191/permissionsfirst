@@ -1,8 +1,8 @@
 <?php
 
-$GLOBALS['conn'] = new mysqli('localhost', 'root', '', 'permissionsfirst');
+$conn = new mysqli('localhost', 'root', '', 'permissionsfirst');
 
-if ($GLOBALS['conn']->connect_error) {
-    die("Connection failed: " . $GLOBALS['conn']->connect_error);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 

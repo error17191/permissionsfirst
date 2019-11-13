@@ -21,6 +21,9 @@ if ($_SERVER['REQUEST_URI'] == '/api/users' && $_SERVER['REQUEST_METHOD'] == 'GE
 
 if ($_SERVER['REQUEST_URI'] == '/api/me' && $_SERVER['REQUEST_METHOD'] == 'GET') {
     echo "My Info";
+    $response = my_info();
+    header('Content-Type: application/json');
+    echo json_encode($response);
     exit();
 }
 
@@ -30,6 +33,50 @@ if ($_SERVER['REQUEST_URI'] == '/api/user' && $_SERVER['REQUEST_METHOD'] == 'POS
     echo json_encode($response);
     exit();
 }
+if ($_SERVER['REQUEST_URI'] == '/api/permissions' && $_SERVER['REQUEST_METHOD'] == 'GET') {
+    $response = list_permissions();
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit();
+}
+if ($_SERVER['REQUEST_URI'] == '/api/permissions' && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    $response = edit_permissions();
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit();
+}
+if ($_SERVER['REQUEST_URI'] == '/api/articles' && $_SERVER['REQUEST_METHOD'] == 'GET') {
+    $response = list_articles();
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit();
+}
+if ($_SERVER['REQUEST_URI'] == '/api/article' && $_SERVER['REQUEST_METHOD'] == 'GET') {
+    $response = git_article();
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit();
+}
+if ($_SERVER['REQUEST_URI'] == '/api/my_articles' && $_SERVER['REQUEST_METHOD'] == 'GET') {
+    $response = git_my_articles();
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit();
+}
+if ($_SERVER['REQUEST_URI'] == '/api/article' && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    $response = post_article();
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit();
+}
+if ($_SERVER['REQUEST_URI'] == '/api/edit_article' && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    $response = edit_article();
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit();
+}
+
+
 
 
 // other endpoints
