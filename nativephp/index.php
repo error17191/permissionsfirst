@@ -13,8 +13,8 @@ foreach ($files as $file) {
 
 
 if ($_SERVER['REQUEST_URI'] == '/api/users' && $_SERVER['REQUEST_METHOD'] == 'GET') {
-    create('sadsa',[1,2,3]);
-    exit();
+//    create('sadsa',[1,2,3]);
+//    exit();
     $response = list_users();
     header('Content-Type: application/json');
     echo json_encode($response);

@@ -2,12 +2,9 @@
 
 function list_users()
 {
-    $sql = "SELECT * from users";
-
-    return [
-        'list-users' => conn()->query($sql)->fetch_all(MYSQLI_ASSOC)
-    ];
-
+    $result = list_all_data('users');
+    var_dump($result);
+    exit();
 }
 
 function create_user()
@@ -40,28 +37,17 @@ function my_info()
 {
     $headers  =getallheaders();
        if ( array_key_exists('Auth-Id', $headers)){
-           if ($headers['Auth-Id'] !=null ){
-               $auth_id = $headers['Auth-Id'] ;
-               $sql = "SELECT * from users where id='$auth_id'";
-//               var_dump(conn()->query($sql)->fetch_all(MYSQLI_ASSOC));
-//               exit();
-               return [
-                   'auth-user'=>conn()->query($sql)->fetch_all(MYSQLI_ASSOC),
-               ];
-           }
-           else{
-               return [
-                   'data'=>'not user or admin'
-               ];
+           if ($headers['Auth-Id'] !=null ) {
+               $auth_id = $headers['Auth-Id'];
+               $condition = "id = {$auth_id}";
+               return list_all_data('users', $condition);
            }
        }
        else{
-
         echo 'not authorized';
            conn()->close();
            exit();
        }
-
 }
 function list_permissions()
 {
@@ -69,9 +55,9 @@ function list_permissions()
     if(array_key_exists('Auth-Id',$headers)){
         if ($headers['Auth-Id'] !=null){
             $auth_id = $headers['Auth-Id'] ;
-            $sql = "SELECT * from users where id='$auth_id'";
-            $user =conn()->query($sql);
-            $user = mysqli_fetch_assoc($user);
+            $condition = "id = {$auth_id}";
+            $sql = list_all_data('users', $condition);
+
             if (isset($user['is_super_admin']) && $user['is_super_admin'] == 1){
                 $sql = "SELECT * from permissions";
                 $permissions =conn()->query($sql)->fetch_all(MYSQLI_ASSOC);
@@ -140,3 +126,4 @@ function edit_permissions()
     }
 
 }
+
