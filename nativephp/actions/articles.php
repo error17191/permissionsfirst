@@ -7,11 +7,7 @@
  */
 function list_articles()
 {
-    $sql = "SELECT * from articles";
-    return [
-        'articles'=> conn()->query($sql)->fetch_all(MYSQLI_ASSOC),
-    ];
-
+    return   list_all_data('articles');
 }
 function edit_article()
 {
@@ -19,24 +15,15 @@ function edit_article()
     if (array_key_exists('Auth-Id',$headers)&& array_key_exists('Article-Id',$headers)){
         $auth_id = $headers['Auth-Id'];
         $article_id = $headers['Article-Id'];
-        $sql ="SELECT * from articles where id =$article_id";
-        $sql = conn()->query($sql) ;
-        $sql = mysqli_fetch_assoc($sql);
-//        var_dump($sql['id'] , $sql['user_id']);
-//        exit();
-        if ($auth_id == 1 || $auth_id ==$sql['user_id']){
+        $with = "id = {$article_id}";
+        $sql = list_all_data('articles',$with);
+        if ($auth_id == 1 || $auth_id ==$sql['data']['user_id']){
             $requestData = request();
-            $sql = "UPDATE articles set title='{$requestData['title']}' ,
-            content='{$requestData['content']}'  WHERE id={$article_id} ";
-            if (conn()->query($sql) === TRUE){
-                return [
-                    'message'=>'article updated succefully',
-                ];
-            }
-            else {
-                echo "Error: " . $sql . "<br>" . conn()->error;
-                exit();
-            }
+            $data = [];
+            $data['title'] = "{$requestData['content']}";
+            $data['content'] = "{$requestData['content']}";
+            $condtion ="id = {$article_id}" ;
+            return update('articles',$data ,$condtion);
         }
     }
     else {
@@ -51,24 +38,15 @@ function post_article()
     $headers = getallheaders();
     if (array_key_exists('Auth-Id',$headers) && $headers['Auth-Id'] != null){
         $user = $headers['Auth-Id'];
-        $sql = "SELECT * from users where id= {$user}";
-        $sql = conn()->query($sql)->fetch_all(MYSQLI_ASSOC);
-        if(!empty($sql)){
+        $with ="id = {$user}";
+        $sql = list_all_data('users',$with);
+        if($sql['data'] !=[]){
             $requestData = request();
-            $sql = "INSERT INTO articles (user_id ,title ,content) values (
-            '{$requestData['user_id']}',
-            '{$requestData['title']}',
-            '{$requestData['content']}'
-            )";
-        if (conn()->query($sql) === TRUE){
-            return [
-                'article_id' => conn()->insert_id
-            ];
-        }
-        else {
-            echo "Error: " . $sql . "<br>" . conn()->error;
-            exit();
-        }
+            $data = [];
+            $data['user_id'] = $requestData['user_id'];
+            $data['title'] = $requestData['title'] ;
+            $data['content'] = $requestData['content'] ;
+            return create('articles',$data);
         }
     }
     else {
@@ -83,33 +61,83 @@ function post_article()
 function git_article()
 {
     $hearders = getallheaders();
-    if(array_key_exists('Auth-Id',$hearders) && array_key_exists('Article-Id',$hearders)
-    && $hearders['Article-Id'] !=null){
+    if (array_key_exists('Auth-Id', $hearders) && array_key_exists('Article-Id', $hearders)
+        && $hearders['Article-Id'] != null) {
         $article_id = $hearders['Article-Id'];
-        $sql = "SELECT * from articles WHERE id = {$article_id}";
-        return [
-            'article'=> conn()->query($sql)->fetch_all(MYSQLI_ASSOC),
-        ];
+        $with = "id = {$article_id}";
+        return list_all_data('articles', $with);
     }
     else{
         return [
-            'message'=>'please enter the article id at header ya mo8afal',
+            'message' => 'please enter the article id at header ya mo8afal',
         ];
     }
 }
 function git_my_articles()
 {
     $hearders = getallheaders();
-    if(array_key_exists('Auth-Id',$hearders)&& $hearders['Auth-Id'] !=null){
+    if (array_key_exists('Auth-Id', $hearders) && $hearders['Auth-Id'] != null) {
         $user = $hearders['Auth-Id'];
-        $sql = "SELECT * from articles WHERE user_id = '{$user}'";
-        return [
-            'my_articles'=> conn()->query($sql)->fetch_all(MYSQLI_ASSOC) ,
-        ];
+        $with = "user_id = {$user}";
+        return list_all_data('articles', $with);
     }
     else{
         return [
             'message'=>'not authorized'
         ];
     }
+
 }
+
+function create($table_name , $data)
+{
+    $columns = implode(",",array_keys($data));
+    $values = implode(",",array_values($data));
+    $sql = "INSERT INTO $table_name ($columns) values ($values)";
+    if (conn()->query($sql) === TRUE){
+        return [
+            'id' => conn()->insert_id
+        ];
+    }
+    else {
+        echo "Error: " . $sql . "<br>" . conn()->error;
+        exit();
+    }
+}
+function list_data ($table_name,$data)
+{
+    $columns = implode(',',$data);
+    $sql = "SELECT $columns from $table_name";
+    return [
+        'data'=> conn()->query($sql)->fetch_all(MYSQLI_ASSOC),
+    ];
+}
+function list_all_data($table_name,$with =1)
+{
+    $sql = "SELECT * from {$table_name} where $with ";
+    return [
+        'data'=> conn()->query($sql)->fetch_assoc(),
+    ];
+}
+
+function update($table_name,$data,$condition)
+{
+    $sql = "UPDATE {$table_name} SET";
+    foreach ($data as $key=>$value){
+        $sql .= "  {$key} = {$value} , ";
+    }
+    $sql = substr($sql,0, strlen($sql) - 2);
+
+    $sql .= " WHERE   {$condition} ";
+    if (conn()->query($sql) === TRUE){
+        return [
+            'message'=>'updated successfully',
+        ];
+    }
+    else {
+        echo "Error: " . $sql . "<br>" . conn()->error;
+        exit();
+    }
+
+}
+
