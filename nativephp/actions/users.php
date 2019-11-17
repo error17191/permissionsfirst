@@ -2,42 +2,28 @@
 
 function list_users()
 {
-    $result = list_all_data('users');
-    var_dump($result);
-    exit();
+    return list_all_data('users',1,true);
 }
 
 function create_user()
 {
     // @todo: validate
     $requestData = request();
-    $sql = "INSERT INTO users (first_name, last_name, email, mobile, permissions, password)
-        VALUES (
-        '{$requestData['first_name']}',
-         '{$requestData['last_name']}' ,
-          '{$requestData['email']}' ,
-          '{$requestData['mobile']}' ,
-          '[]',
-          '$2y$10$2Hc8NLiimtNdcmijOS2.zOJkYS7Dkzbmi6op9oLkQXsJFpMY0lVUS'
-          )";
-    if (conn()->query($sql) === TRUE) {
-        return [
-
-            'user_id' => conn()->insert_id
-        ];
-    } else {
-        echo "Error: " . $sql . "<br>" . conn()->error;
-        exit();
-    }
-
-    conn()->close();
+    $data = [];
+    $data['first_name']= $requestData['first_name'];
+    $data['last_name']= $requestData['last_name'];
+    $data['email']= $requestData['email'];
+    $data['mobile']= $requestData['mobile'];
+    $data['permissions']=[];
+    $data['password'] = '$2y$10$2Hc8NLiimtNdcmijOS2.zOJkYS7Dkzbmi6op9oLkQXsJFpMY0lVUS' ;
+    return create('users',$data);
 }
 
 function my_info()
 {
     $headers  =getallheaders();
        if ( array_key_exists('Auth-Id', $headers)){
-           if ($headers['Auth-Id'] !=null ) {
+           if ($headers['Auth-Id'] !=null) {
                $auth_id = $headers['Auth-Id'];
                $condition = "id = {$auth_id}";
                return list_all_data('users', $condition);
@@ -56,11 +42,10 @@ function list_permissions()
         if ($headers['Auth-Id'] !=null){
             $auth_id = $headers['Auth-Id'] ;
             $condition = "id = {$auth_id}";
-            $sql = list_all_data('users', $condition);
-
-            if (isset($user['is_super_admin']) && $user['is_super_admin'] == 1){
-                $sql = "SELECT * from permissions";
-                $permissions =conn()->query($sql)->fetch_all(MYSQLI_ASSOC);
+            $columns = 'is_super_admin';
+            $result = list_data('users',$columns, $condition,true);
+            if (isset($user['is_super_admin']) && $result['is_super_admin'] == 1){
+                $permissions = list_all_data('permissions',1,true);
                 return [
                 'permissions'=>$permissions,
             ];
@@ -89,24 +74,17 @@ function edit_permissions()
             && $headers['User-Id'] !=null){
             $auth_id = $headers['Auth-Id'];
             $user_id = $headers['User-Id'];
-            $sql = "SELECT * from users where id='$auth_id'";
-            $user =conn()->query($sql);
-            $user = mysqli_fetch_assoc($user);
-            if (isset($user['is_super_admin']) && $user['is_super_admin'] == 1){
-//                $requestData = request();
-//                $data =$requestData['permissions'];
+            $condition = "id = {$user_id}";
+            $columns = 'is_super_admin';
+            $result = list_any('users',$columns,$condition,true);
+            if (isset($result['is_super_admin']) && $result['is_super_admin'] == 1){
+                $requestData = request();
+                $data=[];
+                $data['permissions'] =$requestData['permissions'];
 //                var_dump($data);
 //                exit();
-                $data =json_encode( $_POST['permissions']);
-                $sql = "UPDATE  users set permissions = $data WHERE id = $user_id";
-                if (conn()->query($sql) === TRUE) {
-                    return [
-                        'message' => 'done suucefully'
-                    ];
-                } else {
-                    echo "Error: " . $sql . "<br>" . conn()->error;
-                    exit();
-                }
+//                $data =json_encode( $_POST['permissions']);
+               return update('users',$data,$condition);
             }
             else{
                 return ['message'=>'Not Admin & only admin can edit permissions'];
