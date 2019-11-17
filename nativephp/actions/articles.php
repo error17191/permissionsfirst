@@ -35,9 +35,8 @@ function edit_article()
 
 function post_article()
 {
-    $headers = getallheaders();
-    if (array_key_exists('Auth-Id', $headers) && $headers['Auth-Id'] != null) {
-        $user = $headers['Auth-Id'];
+    $user = auth_user();
+    if ($user) {
         $with = "id = {$user}";
         $sql = list_all_data('users', $with);
         if ($sql['data'] != []) {
@@ -59,10 +58,9 @@ function post_article()
 
 function git_article()
 {
-    $hearders = getallheaders();
-    if (array_key_exists('Auth-Id', $hearders) && array_key_exists('Article-Id', $hearders)
-        && $hearders['Article-Id'] != null) {
-        $article_id = $hearders['Article-Id'];
+    $user = auth_user();
+    $article_id =article_id();
+    if ($user && $article_id) {
         $with = "id = {$article_id}";
         return list_all_data('articles', $with);
     } else {
@@ -74,9 +72,8 @@ function git_article()
 
 function git_my_articles()
 {
-    $hearders = getallheaders();
-    if (array_key_exists('Auth-Id', $hearders) && $hearders['Auth-Id'] != null) {
-        $user = $hearders['Auth-Id'];
+    $user = auth_user();
+    if ($user) {
         $with = "user_id = {$user}";
         return list_all_data('articles', $with);
     } else {
@@ -150,5 +147,21 @@ function update($table_name, $data, $condition)
         exit();
     }
 
+}
+function auth_user()
+{
+    $headers = getallheaders();
+    if (array_key_exists('Auth-Id', $headers) && $headers['Auth-Id'] != null) {
+        $user = $headers['Auth-Id'];
+        return $user ;
+        }
+}
+function article_id()
+{
+    $headers = getallheaders();
+    if (array_key_exists('Article-Id', $headers) && $headers['Article-Id'] != null){
+        $article_id = $headers['Article-Id'];
+        return $article_id ;
+    }
 }
 

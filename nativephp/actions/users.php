@@ -21,13 +21,10 @@ function create_user()
 
 function my_info()
 {
-    $headers  =getallheaders();
-       if ( array_key_exists('Auth-Id', $headers)){
-           if ($headers['Auth-Id'] !=null) {
-               $auth_id = $headers['Auth-Id'];
-               $condition = "id = {$auth_id}";
+    $user  = auth_user();
+       if ($user){
+               $condition = "id = {$user}";
                return list_all_data('users', $condition);
-           }
        }
        else{
         echo 'not authorized';
@@ -37,11 +34,9 @@ function my_info()
 }
 function list_permissions()
 {
-    $headers = getallheaders();
-    if(array_key_exists('Auth-Id',$headers)){
-        if ($headers['Auth-Id'] !=null){
-            $auth_id = $headers['Auth-Id'] ;
-            $condition = "id = {$auth_id}";
+    $user = auth_user();
+    if($user){
+            $condition = "id = {$user}";
             $columns = 'is_super_admin';
             $result = list_data('users',$columns, $condition,true);
             if (isset($user['is_super_admin']) && $result['is_super_admin'] == 1){
@@ -53,12 +48,6 @@ function list_permissions()
             else{
                 return ['message'=>'Not Admin'];
             }
-        }
-        else{
-            return [
-                'message'=>'Not User'
-            ];
-        }
     }
     else{
         return [
@@ -69,10 +58,10 @@ function list_permissions()
 function edit_permissions()
 {
     $headers = getallheaders();
-    if(array_key_exists('Auth-Id',$headers)){
-        if ($headers['Auth-Id'] !=null && array_key_exists('User-Id',$headers)
+    $auth_id = auth_user();
+    if($auth_id){
+        if (array_key_exists('User-Id',$headers)
             && $headers['User-Id'] !=null){
-            $auth_id = $headers['Auth-Id'];
             $user_id = $headers['User-Id'];
             $condition = "id = {$user_id}";
             $columns = 'is_super_admin';
