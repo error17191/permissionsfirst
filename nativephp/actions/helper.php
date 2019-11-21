@@ -38,11 +38,7 @@ function item_all($table_name, $condition)
 
 function create($table_name, $data)
 {
-    foreach ($data as $key => $value) {
-        if (is_string($value)) {
-            $data[$key] = "'{$value}'";
-        }
-    }
+    convet_data_to_string($data);
     $columns = implode(",", array_keys($data));
     $values = implode(",", array_values($data));
     $sql = "INSERT INTO $table_name ($columns) values ($values)";
@@ -58,11 +54,7 @@ function create($table_name, $data)
 
 function update($table_name, $data, $condition)
 {
-    foreach ($data as $key=>$value){
-        if(is_string($value)){
-            $data[$value] = "'{$value}'";
-        }
-    }
+    convet_data_to_string($data);
     $sql = "UPDATE {$table_name} SET";
     foreach ($data as $key => $value) {
         $sql .= "  {$key} = {$value} , ";
@@ -79,4 +71,12 @@ function update($table_name, $data, $condition)
         exit();
     }
 
+}
+function convet_data_to_string($data)
+{
+    foreach ($data as $key=>$value){
+        if(is_string($value)){
+            $data[$value] = "'{$value}'";
+        }
+    }
 }

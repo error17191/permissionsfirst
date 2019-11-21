@@ -17,7 +17,7 @@ function edit_article()
         $article_id = article_id();
         $with = "id = {$article_id}";
         $sql = list_all_data('articles', $with,true);
-        if ($auth_id == 1 || $auth_id == $sql['data']['user_id']) {
+        if ($auth_id == 1 || $auth_id == $sql['data'][0]['user_id']) {
             $requestData = request();
             $data = [];
             $data['title'] = $requestData['content'];
