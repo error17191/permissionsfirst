@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Article;
 use Illuminate\Http\Request;
 use App\Permissions;
+use Illuminate\Support\Facades\Storage;
+
 
 class ArticlesController extends Controller
 {
@@ -33,17 +35,24 @@ class ArticlesController extends Controller
     {
         //@TODO check if auth is admin or legal user
         $this->isAdminOrUserWithPermission($request);
-        if (!auth()->user()->hasPermission(Permissions::CREATE_POST) ) {
+        if (!auth()->user()->hasPermission(Permissions::CREATE_POST)) {
             return response()->json([
                 'message' => 'unAuthorized'
             ], 401);
         }
         // @TODO add validation here
-       $this->dataValidation($request);
+        $this->dataValidation($request);
         $article = new Article();
         $article->title = $request->title;
         $article->content = $request->get('content');
         $article->user_id = auth()->user()->id;
+        if ($request->img != null) {
+            $img_name = rand(0, 999) . $request->img->getClientOriginalName();
+            $request->img->storeAs('public', $img_name);
+//            Storage::putFile('images',$img_name);
+//            $request->img->store('images');
+            $article->img = $img_name;
+        }
         $article->save();
     }
 
@@ -63,28 +72,30 @@ class ArticlesController extends Controller
         }
         //@TODO check validation
         $request->validate([
-            'title'=>'required|string',
-            'content'=>'required|string',
+            'title' => 'required|string',
+            'content' => 'required|string',
         ]);
         $article->title = $request->title;
         $article->content = $request->get('content');
         $article->save();
     }
-    private  function dataValidation($request)
+
+    private function dataValidation($request)
     {
         $request->validate([
-            'title'=>'required|string',
-            'content'=>'required|string',
-            'user_id'=>'required|exists:users,id'
+            'title' => 'required|string',
+            'content' => 'required|string',
+            'user_id' => 'required|exists:users,id',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg'
         ]);
     }
 
     private function isAdminOrUserWithPermission($request)
     {
         if (!auth()->user()->is_super_admin) {
-            if(auth()->id() != $request->user_id)
+            if (auth()->id() != $request->user_id)
                 return response()->json([
-                    'message'=>'not Admin or not auth user'
+                    'message' => 'not Admin or not auth user'
                 ]);
         }
     }

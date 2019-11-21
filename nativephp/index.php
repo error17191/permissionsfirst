@@ -79,8 +79,6 @@ if ($_SERVER['REQUEST_URI'] == '/api/edit_article' && $_SERVER['REQUEST_METHOD']
 }
 
 
-
-
 // other endpoints
 
 function conn()
